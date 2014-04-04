@@ -10,6 +10,9 @@ import models.ServerModelON;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.host.Host;
+
+import os.ServerOperations;
+import parsers.OpenNebulaInfoXMLParser;
 import responsehelper.ResponseHelper;
 import client.OpenNebulaClient;
 import exceptions.ServiceCenterAccessException;
@@ -47,7 +50,7 @@ public class ServerServiceImpl extends ServerService {
 	}
 
 	@Override
-	public ServerModel getById(int id) {
+	public ServerModel getById(int id) throws ServiceCenterAccessException {
 		 Client client = OpenNebulaClient.getInstance();
 	       
 	        Host host = new Host(id, client);
@@ -61,12 +64,12 @@ public class ServerServiceImpl extends ServerService {
 	            try {
 	                response = host.info();
 	                serverModelON = OpenNebulaInfoXMLParser.parseServerInfo(response.getMessage());
-	                serverModelON.setMacAddress(getServerMAC(host.getName()));
+	                serverModelON.setMacAddress(ServerOperations.getServerMAC(host.getName()));
 	            } catch (Exception e) {
 	                throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
 	            }
 	        }
-	        return dto;
+	        return serverModelON;
 	}
 
 	@Override
