@@ -5,12 +5,14 @@ import java.util.List;
 
 
 import models.ServerModel;
+import models.ServerModelON;
 
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.host.Host;
 import responsehelper.ResponseHelper;
 import client.OpenNebulaClient;
+import exceptions.ServiceCenterAccessException;
 import util.Energy;
 import util.ResponseMessage;
 
@@ -48,21 +50,18 @@ public class ServerServiceImpl extends ServerService {
 	public ServerModel getById(int id) {
 		 Client client = OpenNebulaClient.getInstance();
 	       
-	        Host host = new Host(physicalHost.getId(), client);
+	        Host host = new Host(id, client);
 
 	        OneResponse response = host.info();
 	        if (response.isError()) {
 	            throw new ServiceCenterAccessException(response.getErrorMessage());
 	        }
-	        ServerInfo dto = null;
-	        while (dto == null || dto.getTotalMem() == 0) {
-	            if (SHUTDOWN_REQUESTED) {
-	                return new ServerInfo();
-	            }
+	        ServerModelON serverModelON = null;
+	        while (serverModelON == null || serverModelON.getTotalMem() == 0) {
 	            try {
 	                response = host.info();
-	                dto = OpenNebulaInfoXMLParser.parseServerInfo(response.getMessage());
-	                dto.setMacAddress(getServerMAC(physicalHost.getHostname()));
+	                serverModelON = OpenNebulaInfoXMLParser.parseServerInfo(response.getMessage());
+	                serverModelON.setMacAddress(getServerMAC(host.getName()));
 	            } catch (Exception e) {
 	                throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
 	            }
