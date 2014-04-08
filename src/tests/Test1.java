@@ -129,7 +129,7 @@ public class Test1 {
 		VirtualMachinePool virtualMachinePool = new VirtualMachinePool(
 				OpenNebulaClient.getInstance());
 		virtualMachinePool.info();
-		VirtualMachine virtualMachine = virtualMachinePool.getById(516);
+		VirtualMachine virtualMachine = virtualMachinePool.getById(2417);
 		String imagePath = OpenNebulaConfigurationManager.getOpenNebulaRCPAddress();
 		Puppeteer puppeteer = new Puppeteer(OpenNebulaConfigurationManager.getDatastoreUsername(),
 				                            OpenNebulaConfigurationManager.getDatastorePassword(), 

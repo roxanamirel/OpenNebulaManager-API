@@ -11,14 +11,14 @@ import java.util.Properties;
 public class OpenNebulaConfigurationManager {
 
     private static Properties generalProperties;
-    private static final String CONFIG_PATH="/var/lib/one/workspace/OpenNebulaManager-API/src/config/config.properties";
     
     static {
         generalProperties = new Properties();
+        String path = generalProperties.getProperty("onconfigPath");
         try {
-            generalProperties.load(new FileInputStream(CONFIG_PATH));
+            generalProperties.load(new FileInputStream(path));
         } catch (IOException e) {
-            System.out.println("Unable to load CONFIG_PATH file");
+            System.out.println("Unable to load OPEN NEBULA CONFIG_PATH file");
             System.exit(1);
         }
     }
