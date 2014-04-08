@@ -48,7 +48,7 @@ public class OpenNebulaConfigurationManager {
 	public static int getReceivingPort(){
 		return Integer.parseInt(generalProperties.getProperty("receivingPort"));
 	}
-	public static int getDatacenterId(){
-		return Integer.parseInt(generalProperties.getProperty("datacenterId"));
+	public static int getDataStoreId(){
+		return Integer.parseInt(generalProperties.getProperty("dataStoreId"));
 	}
 }
