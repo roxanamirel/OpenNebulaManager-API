@@ -127,7 +127,7 @@ public class Test1 {
 		VirtualMachinePool virtualMachinePool = new VirtualMachinePool(
 				OpenNebulaClient.getInstance());
 		virtualMachinePool.info();
-		VirtualMachine virtualMachine = virtualMachinePool.getById(514);
+		VirtualMachine virtualMachine = virtualMachinePool.getById(516);
 		String imagePath = "/var/lib/one/migratedImages/";
 		Puppeteer puppeteer = new Puppeteer("oneadmin", "password", imagePath,
 				"192.168.1.30", 6788);

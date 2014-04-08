@@ -32,5 +32,14 @@ public class OpenNebulaConfigurationManager {
 
 	public static String getIMAGE_PATH_LOCATION() {
 		 return generalProperties.getProperty("imagePathLocation");
-	}    
+	}
+	public static String getDatastoreUsername(){
+		return generalProperties.getProperty("datastoreUserName");
+	}
+	public static String getDatastorePassword(){
+		return generalProperties.getProperty("datastorePassword");
+	}
+	public static String getDatastoreIp(){
+		return generalProperties.getProperty("datastoreIp");
+	}
 }
