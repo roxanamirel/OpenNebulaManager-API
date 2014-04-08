@@ -4,13 +4,29 @@
  * and open the template in the editor.
  */
 package services;
+
 import client.OpenNebulaClient;
+import intercloudmigration.helpers.InterCloudHelper;
+import intercloudmigration.helpers.TemplateHelper;
+import intercloudmigration.models.Disk;
+
 import java.util.List;
 
 import exceptions.ServiceCenterAccessException;
-import services.IVMService;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
+
+import logger.CloudLogger;
+import models.Datacenter;
+import models.DatacenterON;
+import models.ServerModel;
+import models.TemplateModel;
+import models.TemplateModelON;
+import models.VMModel;
+import models.VMModelON;
+import models.VirtualNetworkON;
+
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.template.Template;
@@ -18,271 +34,195 @@ import org.opennebula.client.template.TemplatePool;
 import org.opennebula.client.vm.VirtualMachine;
 import org.opennebula.client.vm.VirtualMachinePool;
 import org.opennebula.client.vnet.VirtualNetwork;
-import utils.config.Configurations;
-import utils.config.GeneralConfigurationManager;
-import utils.parsers.OpenNebulaInfoXMLParser;
-import utils.parsers.OpennebulaUtils;
-import virtualmodelsinfo.PhysicalHost;
-import virtualmodelsinfo.VirtualNetworkInfo;
-import virtualmodelsinfo.VirtualMachineTemplate;
+import org.opennebula.client.vnet.VirtualNetworkPool;
+
+import config.OpenNebulaConfigurationManager;
+
+import parsers.OpenNebulaInfoXMLParser;
+import parsers.OpennebulaUtils;
+
+import util.ResponseMessage;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- *
- * @author oneadmin
- */
-public class VMServiceImpl implements IVMService {
-    
-    @Override
-    public boolean contains(VirtualMachine virtualMachine) {
-        VirtualMachinePool vmp = 
-                new VirtualMachinePool(OpenNebulaClient.getInstance());
-        vmp.info();
-        
-        return vmp.getById(Integer.parseInt(virtualMachine.getId())) != null;
-    }
-    
-    @Override
-    public VirtualMachineTemplate getVMInfo(Integer vmID) throws ServiceCenterAccessException {
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
+public class VMServiceImpl extends VMService {
 
-        VirtualMachine virtualMachine = new VirtualMachine(vmID, client);
-        OneResponse response = virtualMachine.info();
-        String data = response.getMessage();
-        VirtualMachineTemplate virtualTaskInfo = null;
+	private Client client = OpenNebulaClient.getInstance();
 
-        try {
-            virtualTaskInfo = OpenNebulaInfoXMLParser.parseVirtualMachineInfo(data);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
+	@Override
+	public VMModelON create(TemplateModel template) {
+		// VMModelON templateON = new VMModelON(template.getId(),
+		// template.getName());
+		// VirtualNetworkPool networkPool = new VirtualNetworkPool(client);
+		// networkPool.info();
+		// int networkId = Integer.parseInt(OpenNebulaConfigurationManager
+		// .getVMNetworkID());
+		// VirtualNetwork network = networkPool.getById(networkId);
+		// network.info();
+		// VirtualNetworkON virtualNetworkInfo = templateON
+		// .getVirtualNetworkInfo();
+		// String vmTemplate = templateON.getVmTemplateInfo();
+		// vmTemplate = OpennebulaUtils.configureVMTemplate(
+		// vmTemplate,
+		// templateON.getName(),
+		// templateON.getRequestedCPU() / 3000,
+		// templateON.getRequestedMemory(),
+		// OpenNebulaConfigurationManager.getVMNetworkID(),
+		// virtualNetworkInfo.getIp(),
+		// Integer.parseInt(virtualNetworkInfo.getIp().substring(
+		// virtualNetworkInfo.getIp().lastIndexOf(".") + 1)),
+		// virtualNetworkInfo.getVncPassword());
+		//
+		// // create virtual machine for OpenNebula
+		// OneResponse createVirtualMachineResponse = VirtualMachine.allocate(
+		// client, vmTemplate);
+		//
+		// // verify virtual machine creation result
+		// if (createVirtualMachineResponse.isError()) {
+		// // VirtualNetwork.delete(client, template.getNetworkInfo().getId());
+		// // throw new
+		// //
+		// ServiceCenterAccessException(createVirtualMachineResponse.getErrorMessage());
+		// } else {
+		// template.setId(Integer.parseInt(createVirtualMachineResponse
+		// .getMessage()));
+		// }
+		// VirtualMachine vm = new VirtualMachine(template.getId(), client);
+		// vm.info();
+		// while (!vm.lcmStateStr().toLowerCase().contains("boot")
+		// && !vm.lcmStateStr().toLowerCase().contains("runn")) {
+		// try {
+		// Thread.sleep(1000);
+		// } catch (InterruptedException e) {
+		// // throw new ServiceCenterAccessException(e.getMessage(),
+		// // e.getCause());
+		// }
+		// vm.info();
+		//
+		// }import org.opennebula.client.image.Image;
+		return null;
+	}
 
-        return virtualTaskInfo;
-    }
+	@Override
+	public List<VMModel> getPendingVirtualMachines() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public List<VirtualMachineTemplate> getPendingVirtualMachines() throws ServiceCenterAccessException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	@Override
+	public VMModel deploy(VMModel vm, ServerModel server) {
+		VirtualMachine virtualMachine = new VirtualMachine(vm.getId(), client);
 
-    @Override
-    public List<VirtualMachineTemplate> getAllVirtualMachines() throws ServiceCenterAccessException {
-        List<VirtualMachineTemplate> runningVMs = new ArrayList<VirtualMachineTemplate>();
+		// deploy the virtual machine onto the server having the OpenNebula ID =
+		// physicalHost.getId()
+		virtualMachine.deploy(server.getId());
+		VMModel toBeReturned = null;
+		try {
+			toBeReturned = OpenNebulaInfoXMLParser
+					.parseVirtualMachineInfo(virtualMachine.info().getMessage());
+		} catch (Exception e) {
+			CloudLogger.getInstance().LogInfo(e.getMessage());
+		}
+		return toBeReturned;
 
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
+	}
 
-        VirtualMachinePool pool = new VirtualMachinePool(client);
-        pool.info();
-      
-        Iterator<VirtualMachine> hostIterator = pool.iterator();
-        try {
-            while (hostIterator.hasNext()) {
-                VirtualMachine virtualMachine = hostIterator.next();
-                OneResponse response = virtualMachine.info();
-                String data = response.getMessage();
-                runningVMs.add(OpenNebulaInfoXMLParser.parseVirtualMachineInfo(data));
-            }
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.toString(), e.getCause());
-        }
-        return runningVMs;
-    }
+	@Override
+	public VMModel migrate(VMModel vm, ServerModel server) {
 
+		VirtualMachine virtualMachine = new VirtualMachine(vm.getId(), client);
+		virtualMachine.migrate(server.getId());
 
-    @Override
-    public VirtualMachineTemplate createVirtualMachine(VirtualMachineTemplate infoVirtual) throws ServiceCenterAccessException {
-        //create a connection to the OpenNebula manager
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
+		VMModel toBeReturned = null;
+		try {
+			toBeReturned = OpenNebulaInfoXMLParser
+					.parseVirtualMachineInfo(virtualMachine.info().getMessage());
+		} catch (Exception e) {
+			CloudLogger.getInstance().LogInfo(e.getMessage());
+		}
+		return toBeReturned;
+	}
 
-        VirtualNetworkInfo virtualNetworkInfo = infoVirtual.getNetworkInfo();
-        String vmTemplate = infoVirtual.getVmTemplateInfo();
-        vmTemplate = OpennebulaUtils.configureVMTemplate(vmTemplate, infoVirtual.getName(),
-                infoVirtual.getRequestedCPU() / 3000, infoVirtual.getRequestedMemory(),
-                GeneralConfigurationManager.getVMNetworkID(), virtualNetworkInfo.getIp(),
-                Integer.parseInt(virtualNetworkInfo.getIp().substring(virtualNetworkInfo.getIp().lastIndexOf(".") + 1)),
-                virtualNetworkInfo.getVncPassword());
+	@Override
+	public ResponseMessage start(VMModel vm) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-        //create virtual machine for OpenNebula
-        OneResponse createVirtualMachineResponse = VirtualMachine.allocate(client, vmTemplate);
+	@Override
+	public ResponseMessage stop(VMModel vm) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-        //verify virtual machine creation result
-        if (createVirtualMachineResponse.isError()) {
-            VirtualNetwork.delete(client, infoVirtual.getNetworkInfo().getId());
-            throw new ServiceCenterAccessException(createVirtualMachineResponse.getErrorMessage());
-        } else {
-            infoVirtual.setId(Integer.parseInt(createVirtualMachineResponse.getMessage()));
-        }
-        VirtualMachine vm = new VirtualMachine(infoVirtual.getId(), client);
-        vm.info();
-        while (!vm.lcmStateStr().toLowerCase().contains("boot") && !vm.lcmStateStr().toLowerCase().contains("runn")) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-            }
-            vm.info();
+	@Override
+	public VMModel getById(int id) throws ServiceCenterAccessException {
+		VirtualMachine virtualMachine = new VirtualMachine(id, client);
+		OneResponse response = virtualMachine.info();
+		String data = response.getMessage();
+		VMModelON vmModel = null;
 
-        }
-        return infoVirtual;
-    }
+		try {
+			vmModel = OpenNebulaInfoXMLParser.parseVirtualMachineInfo(data);
+		} catch (Exception e) {
+			CloudLogger.getInstance().LogInfo(e.getMessage() + e.getCause());
+		}
+		return vmModel;
+	}
 
-    @Override
-    public void removeVirtualMachine(VirtualMachineTemplate infoVirtual) throws ServiceCenterAccessException {
-        //create a connection to the OpenNebula manager
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
-        VirtualMachine vm = new VirtualMachine(infoVirtual.getId(), client);
-        OneResponse finalizeResponse = vm.finalizeVM();
-        if (finalizeResponse.isError()) {
-            throw new ServiceCenterAccessException(finalizeResponse.getErrorMessage());
-        }
-    }
+	@Override
+	public List<VMModel> getAll() throws ServiceCenterAccessException {
+		List<VMModel> runningVMs = new ArrayList<VMModel>();
+		VirtualMachinePool pool = new VirtualMachinePool(client);
+		pool.info();
+		Iterator<VirtualMachine> hostIterator = pool.iterator();
+		try {
+			while (hostIterator.hasNext()) {
+				VirtualMachine virtualMachine = hostIterator.next();
+				OneResponse response = virtualMachine.info();
+				String data = response.getMessage();
+				runningVMs.add(OpenNebulaInfoXMLParser
+						.parseVirtualMachineInfo(data));
+			}
+		} catch (Exception e) {
+			throw new ServiceCenterAccessException(e.toString(), e.getCause());
+		}
+		return runningVMs;
+	}
 
-    @Override
-    public VirtualMachineTemplate deployVirtualMachine(VirtualMachineTemplate infoVirtual, PhysicalHost physicalHost) throws ServiceCenterAccessException {
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
+	@Override
+	public ResponseMessage delete(VMModel t)
+			throws ServiceCenterAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-        VirtualMachine virtualMachine = new VirtualMachine(infoVirtual.getId(), client);
+	@Override
+	public boolean contains(VMModel vm) {
+		VirtualMachinePool vmp = new VirtualMachinePool(
+				OpenNebulaClient.getInstance());
+		vmp.info();
 
-        //deploy the virtual machine onto the server having the OpenNebula ID =  physicalHost.getId()
-        OneResponse deployVirtualMachineResponse = virtualMachine.deploy(physicalHost.getId());
-        VirtualMachineTemplate toBeReturned = null;
-        try {
-            toBeReturned = OpenNebulaInfoXMLParser.parseVirtualMachineInfo(virtualMachine.info().getMessage());
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.toString());
-        }
-        return toBeReturned;
-    }
+		return vmp.getById(vm.getId()) != null;
+	}
 
-    @Override
-    public void startVirtualMachine(VirtualMachineTemplate taskInfo) throws ServiceCenterAccessException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	@Override
+	public ResponseMessage interCloudMigrate(VMModel vm, Datacenter datacenter) {
+		VirtualMachine virtualMachine = new VirtualMachine(vm.getId(), client);
+		TemplateModelON tm = new TemplateHelper()
+				.createTemplateModel(virtualMachine);
+		System.out.println(tm.toString());
+        InterCloudHelper interCloudHelper = new InterCloudHelper();
+		List<String> imageNames = interCloudHelper.createImagesFromDisks(tm.getDisks(),
+				virtualMachine);
+		List<String> imagePaths = interCloudHelper.getImagesPaths(imageNames);
 
-    @Override
-    public void stopVirtualMachine(VirtualMachineTemplate infoVirtual) throws ServiceCenterAccessException {
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
-        VirtualMachine machine = new VirtualMachine(infoVirtual.getId(), client);
-        OneResponse response = machine.stop();
-        if (response.isError()) {
-            throw new ServiceCenterAccessException(response.getErrorMessage());
-        }
-    }
+		interCloudHelper.destroyVirtualMachine(virtualMachine);
+		interCloudHelper.sendImagesWithSSH(imagePaths, imageNames,(DatacenterON) datacenter);
 
-    @Override
-    public void deleteVirtualMachine(VirtualMachineTemplate infoVirtual) throws ServiceCenterAccessException {
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
-        VirtualMachine machine = new VirtualMachine(infoVirtual.getId(), client);
-        OneResponse machineDeleteResponse = machine.finalizeVM();
-        if (machineDeleteResponse.isError()) {
-            throw new ServiceCenterAccessException(machineDeleteResponse.getErrorMessage());
-        }
-    }
-
-    @Override
-    public void migrateVirtualMachine(VirtualMachineTemplate taskInfo, PhysicalHost destination) throws ServiceCenterAccessException {
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
-
-        //get a reference to an existing virtual machine having the OpenNebula ID = taskInfo.getId()
-        VirtualMachine machine = new VirtualMachine(taskInfo.getId(), client);
-
-        //issue a live migration or an offline migration depending on the configuration of the GCL
-        OneResponse response
-                = (GeneralConfigurationManager.getVMMigrationMechanism().equals("live"))
-                ? machine.liveMigrate(destination.getId())
-                : machine.migrate(destination.getId());
-
-    }
-
-    @Override
-    public void restartInitialVM(String newIP) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public VirtualMachine createVM(int templateId) throws ServiceCenterAccessException {
-
-        Client client = null;
-        try {
-            client = new Client(Configurations.NEBULA_CREDENTIALS, Configurations.NEBULA_RCP_ADDRESS);
-        } catch (Exception e) {
-            throw new ServiceCenterAccessException(e.getMessage(), e.getCause());
-        }
-        TemplatePool tempPool = new TemplatePool(client);
-        tempPool.info();
-        Template template = tempPool.getById(templateId);
-        OneResponse orsp = template.info();
-        String msg = orsp.getMessage();
-
-        OneResponse or = template.instantiate();
-        return new VirtualMachine(Integer.parseInt(or.getMessage()), client);
-    }
-
-   
-
-    private String executeCommand(String command) {
-
-        StringBuffer output = new StringBuffer();
-
-        Process p;
-        try {
-            p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader
-                    = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                output.append(line + "\n");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return output.toString();
-    }
-
-    
-
+		interCloudHelper.remoteRestore((DatacenterON)datacenter, tm, imageNames);
+		return new ResponseMessage();
+	}
+	
 }

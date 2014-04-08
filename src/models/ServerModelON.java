@@ -9,8 +9,7 @@ public class ServerModelON extends ServerModel {
 	    private float usedMem;
 	    private int totalDisk;
 	    private float usedDisk;
-	    private int state; //
-	    private int cloudID;
+	    private int state;
 	    private String macAddress;
 	
 	    
@@ -130,21 +129,7 @@ public class ServerModelON extends ServerModel {
 	public void setState(int state) {
 		this.state = state;
 	}
-
-	/**
-	 * @return the cloudID
-	 */
-	public int getCloudID() {
-		return cloudID;
-	}
-
-	/**
-	 * @param cloudID the cloudID to set
-	 */
-	public void setCloudID(int cloudID) {
-		this.cloudID = cloudID;
-	}
-
+	
 	/**
 	 * @return the macAddress
 	 */
@@ -158,7 +143,4 @@ public class ServerModelON extends ServerModel {
 	public void setMacAddress(String macAddress) {
 		this.macAddress = macAddress;
 	}
-	
-	
-
 }

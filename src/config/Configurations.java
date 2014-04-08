@@ -10,9 +10,9 @@ package config;
  *
  * @author oneadmin
  */
-public class Configurations extends config.Configurations{
+public class Configurations {//extends config.Configurations{
     public static final String LogPath = "Logs/Logs";
     public static final int GCL_RMI_API_PORT = 1333;
-    public final static String NEBULA_RCP_ADDRESS = GeneralConfigurationManager.getOpenNebulaRCPAddress();
-    public final static String NEBULA_CREDENTIALS = GeneralConfigurationManager.getOpenNebulaCredentials();
+    public final static String NEBULA_RCP_ADDRESS = OpenNebulaConfigurationManager.getOpenNebulaRCPAddress();
+    public final static String NEBULA_CREDENTIALS = OpenNebulaConfigurationManager.getOpenNebulaCredentials();
 }
