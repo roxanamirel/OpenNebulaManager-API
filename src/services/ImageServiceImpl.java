@@ -81,7 +81,7 @@ public class ImageServiceImpl extends ImageService {
             intercloudmigration.models.Image image = disk.getImage();
             image.setDescription("this is a test");
             image.setImagePath(OpenNebulaConfigurationManager.getIMAGE_PATH_LOCATION() + image.getName());
-            OneResponse r = Image.allocate(client, image.toString(), 108);
+            OneResponse r = Image.allocate(client, image.toString(), OpenNebulaConfigurationManager.getDatacenterId());
             
             if (r.isError()) {
                 System.out.println("An error has occured " + r.getErrorMessage());

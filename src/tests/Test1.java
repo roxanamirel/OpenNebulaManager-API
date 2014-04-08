@@ -8,6 +8,8 @@ import java.util.List;
 import org.opennebula.client.vm.VirtualMachine;
 import org.opennebula.client.vm.VirtualMachinePool;
 
+import config.OpenNebulaConfigurationManager;
+
 import client.OpenNebulaClient;
 
 import os.ServerOperations;
@@ -128,9 +130,12 @@ public class Test1 {
 				OpenNebulaClient.getInstance());
 		virtualMachinePool.info();
 		VirtualMachine virtualMachine = virtualMachinePool.getById(516);
-		String imagePath = "/var/lib/one/migratedImages/";
-		Puppeteer puppeteer = new Puppeteer("oneadmin", "password", imagePath,
-				"192.168.1.30", 6788);
+		String imagePath = OpenNebulaConfigurationManager.getOpenNebulaRCPAddress();
+		Puppeteer puppeteer = new Puppeteer(OpenNebulaConfigurationManager.getDatastoreUsername(),
+				                            OpenNebulaConfigurationManager.getDatastorePassword(), 
+				                            imagePath,
+				                            OpenNebulaConfigurationManager.getDatastoreIp(), 
+				                            OpenNebulaConfigurationManager.getReceivingPort());
 		VMModel model = new VMModelON(Integer.parseInt(virtualMachine.getId()),
 				virtualMachine.getName());
 		DatacenterON dataCenter = new DatacenterON(puppeteer, null, 1);

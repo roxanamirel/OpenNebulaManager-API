@@ -18,6 +18,8 @@ import models.TemplateModelON;
 
 import org.opennebula.client.OneResponse;
 
+import config.OpenNebulaConfigurationManager;
+
 import services.ImageService;
 import services.ImageServiceImpl;
 import services.TemplateService;
@@ -38,6 +40,7 @@ public class TCPServer implements Runnable {
 
 
     public static void listen() {
+    	
         TemplateModelON tm = null;
         Socket connectionSocket = null;
         boolean isListening = true;
@@ -50,7 +53,7 @@ public class TCPServer implements Runnable {
         while (isListening) {
            
             try {
-                System.out.println("Listening on port 6789...");
+                System.out.println("Listening on port"+ OpenNebulaConfigurationManager.getListeningPort());
                 
                 connectionSocket = welcomeSocket.accept();
                 if (connectionSocket.isConnected()) {
