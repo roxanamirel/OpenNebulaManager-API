@@ -11,10 +11,9 @@ import java.util.Properties;
 public class OpenNebulaConfigurationManager {
 
     private static Properties generalProperties;
-    
+    private static String path = "/var/lib/one/workspace/OpenNebulaManager-API/src/config/config.properties";
     static {
         generalProperties = new Properties();
-        String path = generalProperties.getProperty("onconfigPath");
         try {
             generalProperties.load(new FileInputStream(path));
         } catch (IOException e) {
