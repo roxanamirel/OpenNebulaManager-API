@@ -1,12 +1,8 @@
-
-
 package config;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-
-
 
 public class OpenNebulaConfigurationManager {
 
@@ -28,7 +24,6 @@ public class OpenNebulaConfigurationManager {
     public static String getOpenNebulaCredentials() {
         return generalProperties.getProperty("openNebulaCredentials");
     }
-
 	public static String getIMAGE_PATH_LOCATION() {
 		 return generalProperties.getProperty("imagePathLocation");
 	}

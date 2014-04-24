@@ -5,9 +5,6 @@ import java.util.List;
 public class VMModelON extends VMModel {
 	private VirtualNetworkON virtualNetworkInfo;
 	private List<VirtualDiskON> virtualDisks;
-	private double requestedCPU;
-	private double requestedCores;
-	private int requestedMemory;
 	private String vmTemplateInfo;
 	private String hostServerHostname;
 
@@ -29,51 +26,6 @@ public class VMModelON extends VMModel {
 	 */
 	public void setVirtualNetworkInfo(VirtualNetworkON virtualNetworkInfo) {
 		this.virtualNetworkInfo = virtualNetworkInfo;
-	}
-
-	/**
-	 * @return the requestedCPU
-	 */
-	public double getRequestedCPU() {
-		return requestedCPU;
-	}
-
-	/**
-	 * @param requestedCPU
-	 *            the requestedCPU to set
-	 */
-	public void setRequestedCPU(double requestedCPU) {
-		this.requestedCPU = requestedCPU;
-	}
-
-	/**
-	 * @return the requestedCores
-	 */
-	public double getRequestedCores() {
-		return requestedCores;
-	}
-
-	/**
-	 * @param requestedCores
-	 *            the requestedCores to set
-	 */
-	public void setRequestedCores(double requestedCores) {
-		this.requestedCores = requestedCores;
-	}
-
-	/**
-	 * @return the requestedMemory
-	 */
-	public int getRequestedMemory() {
-		return requestedMemory;
-	}
-
-	/**
-	 * @param requestedMemory
-	 *            the requestedMemory to set
-	 */
-	public void setRequestedMemory(int requestedMemory) {
-		this.requestedMemory = requestedMemory;
 	}
 
 	/**

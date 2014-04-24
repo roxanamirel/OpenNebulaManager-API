@@ -5,11 +5,9 @@ package client;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.opennebula.client.Client;
 import org.opennebula.client.ClientConfigurationException;
-
-import config.Configurations;
+import config.OpenNebulaConfigurations;
 
 /**
  * @author oneadmin
@@ -23,8 +21,8 @@ public class OpenNebulaClient {
 	        if (_instance == null) {
 	            try {
 	                _instance = new Client(
-	                        Configurations.NEBULA_CREDENTIALS,
-	                        Configurations.NEBULA_RCP_ADDRESS);
+	                		OpenNebulaConfigurations.NEBULA_CREDENTIALS,
+	                		OpenNebulaConfigurations.NEBULA_RCP_ADDRESS);
 	            } catch (ClientConfigurationException ex) {
 	                Logger.getLogger(OpenNebulaClient.class.getName()).log(Level.SEVERE, null, ex);
 	            }

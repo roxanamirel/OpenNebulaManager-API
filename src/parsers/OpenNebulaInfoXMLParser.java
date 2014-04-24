@@ -147,14 +147,13 @@ public class OpenNebulaInfoXMLParser {
 		VMModelON virtualModel = new VMModelON(vmId, name);
 
 		// vm template does not specify cpu freq
-//		if (requiredCPUFreq.length() == 0) {
-//			requiredCPUFreq = ""
-//					+ GeneralConfigurationManager.getVMDefaultCPUFrequency();
-//		}
+		if (requiredCPUFreq == null || requiredCPUFreq.equals("")) {
+			requiredCPUFreq = "0.0";
+		}
 
-		virtualModel.setRequestedCores(Float.parseFloat(requestedCPU));
-//		virtualModel.setRequestedCPU(Float.parseFloat(requiredCPUFreq));
-		virtualModel.setRequestedMemory(Integer.parseInt(requestedMEM));
+		virtualModel.setCpu(Float.parseFloat(requiredCPUFreq));
+		virtualModel.setCores(Integer.parseInt(requestedCPU));
+		virtualModel.setMemory(Integer.parseInt(requestedMEM));
 		virtualModel.setVirtualDisks(virtualDisks);
 		String stateLowerCase = state.toLowerCase();
 
