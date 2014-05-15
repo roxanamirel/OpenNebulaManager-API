@@ -2,27 +2,20 @@ package services;
 
 import intercloudmigration.models.Disk;
 import intercloudmigration.models.ImageState;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import logger.CloudLogger;
 import models.ImageModel;
 import models.ImageModelON;
 import models.TemplateModelON;
 import responsehelper.ResponseHelper;
 import util.ResponseMessage;
-import util.ResponseType;
 import exceptions.ServiceCenterAccessException;
-
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.image.Image;
 import org.opennebula.client.image.ImagePool;
-
-import config.GeneralConfigurationManager;
 import config.OpenNebulaConfigurationManager;
-
 import client.OpenNebulaClient;
 
 public class ImageServiceImpl extends ImageService {

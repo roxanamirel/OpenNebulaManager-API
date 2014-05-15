@@ -33,6 +33,18 @@ import tcp.TCPServer;
 public class Test1 {
 	private ServerService service = new ServerServiceImpl();
 	private VMService vmService = new VMServiceImpl();
+	
+	public void getVMByID(int id) {
+		try {
+			VMModel vm = vmService.getById(id);
+			System.out.println(vm.getId());
+		} catch (ServiceCenterAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 
 	public void getAllS() {
 
@@ -129,13 +141,13 @@ public class Test1 {
 		VirtualMachinePool virtualMachinePool = new VirtualMachinePool(
 				OpenNebulaClient.getInstance());
 		virtualMachinePool.info();
-		VirtualMachine virtualMachine = virtualMachinePool.getById(2417);
-		String imagePath = OpenNebulaConfigurationManager.getOpenNebulaRCPAddress();
+		VirtualMachine virtualMachine = virtualMachinePool.getById(527);
+		String imagePath = OpenNebulaConfigurationManager.getIMAGE_PATH_LOCATION();
 		Puppeteer puppeteer = new Puppeteer(OpenNebulaConfigurationManager.getDatastoreUsername(),
 				                            OpenNebulaConfigurationManager.getDatastorePassword(), 
 				                            imagePath,
 				                            OpenNebulaConfigurationManager.getDatastoreIp(), 
-				                            OpenNebulaConfigurationManager.getReceivingPort());
+				                            OpenNebulaConfigurationManager.getListeningPort());
 		VMModel model = new VMModelON(Integer.parseInt(virtualMachine.getId()),
 				virtualMachine.getName());
 		DatacenterON dataCenter = new DatacenterON(puppeteer, null, 1);

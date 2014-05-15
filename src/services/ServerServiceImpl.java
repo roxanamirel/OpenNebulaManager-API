@@ -5,29 +5,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
-
+import java.util.List;
 import logger.CloudLogger;
 import models.ServerModel;
 import models.ServerModelON;
-
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.host.Host;
 import org.opennebula.client.host.HostPool;
-
-import config.GeneralConfigurationManager;
-import config.OpenNebulaConfigurationManager;
-
 import os.ServerOperations;
 import parsers.OpenNebulaInfoXMLParser;
 import responsehelper.ResponseHelper;
-import client.OpenNebulaClient;
-import exceptions.ServiceCenterAccessException;
 import util.ARPTableManager;
 import util.Energy;
 import util.ResponseMessage;
+import client.OpenNebulaClient;
+import config.GeneralConfigurationManager;
+import exceptions.ServiceCenterAccessException;
 
 /**
  * 
@@ -66,14 +61,10 @@ public class ServerServiceImpl extends ServerService {
 	@Override
 	public ServerModel getById(int id) throws ServiceCenterAccessException {
 
-		Client client = OpenNebulaClient.getInstance();
-		HostPool hostPool = new HostPool(client);
-		hostPool.info();
-		Host host = hostPool.getById(id);
+		Host host = new Host(id, OpenNebulaClient.getInstance());		
 		OneResponse response = host.info();
 		if (response.isError()) {
-			System.out.println(response.getErrorMessage());
-			throw new ServiceCenterAccessException(response.getErrorMessage());			
+			CloudLogger.getInstance().LogInfo(response.getErrorMessage());	
 		}
 		ServerModelON serverModelON = null;
 		while (serverModelON == null) {

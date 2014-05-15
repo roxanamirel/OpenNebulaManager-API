@@ -148,7 +148,7 @@ public class OpenNebulaInfoXMLParser {
 
 		// vm template does not specify cpu freq
 		if (requiredCPUFreq == null || requiredCPUFreq.equals("")) {
-			requiredCPUFreq = "0.0";
+			requiredCPUFreq = "2.93";
 		}
 
 		virtualModel.setCpu(Float.parseFloat(requiredCPUFreq));

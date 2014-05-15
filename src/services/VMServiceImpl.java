@@ -40,6 +40,7 @@ import config.OpenNebulaConfigurationManager;
 
 import parsers.OpenNebulaInfoXMLParser;
 import parsers.OpennebulaUtils;
+import responsehelper.ResponseHelper;
 
 import util.ResponseMessage;
 
@@ -132,8 +133,20 @@ public class VMServiceImpl extends VMService {
 	public VMModel migrate(VMModel vm, ServerModel server) {
 
 		VirtualMachine virtualMachine = new VirtualMachine(vm.getId(), client);
-		virtualMachine.migrate(server.getId());
-
+		
+		try {
+			Thread.sleep(15000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		OneResponse oneResponse = virtualMachine.migrate(server.getId());
+		if (oneResponse.isError()) {
+			CloudLogger.getInstance().LogInfo(oneResponse.getErrorMessage());
+		}
+		else {
+			CloudLogger.getInstance().LogInfo("Successfully migrated " + vm.getId() + " from " + vm.getServerId() + " to " + server.getId());;
+		}
 		VMModel toBeReturned = null;
 		try {
 			toBeReturned = OpenNebulaInfoXMLParser
@@ -192,10 +205,11 @@ public class VMServiceImpl extends VMService {
 	}
 
 	@Override
-	public ResponseMessage delete(VMModel t)
+	public ResponseMessage delete(VMModel vm)
 			throws ServiceCenterAccessException {
-		// TODO Auto-generated method stub
-		return null;
+		VirtualMachine virtualMachine = new VirtualMachine(vm.getId(), client);
+		OneResponse oneResponse = virtualMachine.delete();
+		return ResponseHelper.createResponseMessage(oneResponse);
 	}
 
 	@Override

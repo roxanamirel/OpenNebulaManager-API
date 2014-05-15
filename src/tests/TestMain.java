@@ -20,7 +20,8 @@ public class TestMain {
 	//tests.enableServer(55);
 	//tests.migrate(514, 55);
 	//tests.contains(590);
-	tests.intermigrate();
+	//tests.intermigrate();
+	tests.getVMByID(557);
 	}
 
 }
