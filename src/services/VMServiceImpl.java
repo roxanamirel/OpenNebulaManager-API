@@ -133,19 +133,20 @@ public class VMServiceImpl extends VMService {
 	public VMModel migrate(VMModel vm, ServerModel server) {
 
 		VirtualMachine virtualMachine = new VirtualMachine(vm.getId(), client);
-		
+
+		OneResponse oneResponse = virtualMachine.migrate(server.getId());
+		if (oneResponse.isError()) {
+			CloudLogger.getInstance().LogInfo(oneResponse.getErrorMessage());
+		} else {
+			CloudLogger.getInstance().LogInfo(
+					"Successfully migrated " + vm.getId() + " from "
+							+ vm.getServerId() + " to " + server.getId());
+		}
 		try {
 			Thread.sleep(15000);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
-		OneResponse oneResponse = virtualMachine.migrate(server.getId());
-		if (oneResponse.isError()) {
-			CloudLogger.getInstance().LogInfo(oneResponse.getErrorMessage());
-		}
-		else {
-			CloudLogger.getInstance().LogInfo("Successfully migrated " + vm.getId() + " from " + vm.getServerId() + " to " + server.getId());;
 		}
 		VMModel toBeReturned = null;
 		try {
@@ -226,17 +227,19 @@ public class VMServiceImpl extends VMService {
 		VirtualMachine virtualMachine = new VirtualMachine(vm.getId(), client);
 		TemplateModelON tm = new TemplateHelper()
 				.createTemplateModel(virtualMachine);
-		System.out.println(tm.toString());
-        InterCloudHelper interCloudHelper = new InterCloudHelper();
-		List<String> imageNames = interCloudHelper.createImagesFromDisks(tm.getDisks(),
-				virtualMachine);
+		CloudLogger.getInstance().LogInfo(tm.toString());
+		InterCloudHelper interCloudHelper = new InterCloudHelper();
+		List<String> imageNames = interCloudHelper.createImagesFromDisks(
+				tm.getDisks(), virtualMachine);
 		List<String> imagePaths = interCloudHelper.getImagesPaths(imageNames);
 
 		interCloudHelper.destroyVirtualMachine(virtualMachine);
-		interCloudHelper.sendImagesWithSSH(imagePaths, imageNames,(DatacenterON) datacenter);
+		interCloudHelper.sendImagesWithSSH(imagePaths, imageNames,
+				(DatacenterON) datacenter);
 
-		interCloudHelper.remoteRestore((DatacenterON)datacenter, tm, imageNames);
+		interCloudHelper.remoteRestore((DatacenterON) datacenter, tm,
+				imageNames);
 		return new ResponseMessage();
 	}
-	
+
 }
