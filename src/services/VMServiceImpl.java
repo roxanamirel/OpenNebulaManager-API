@@ -242,4 +242,22 @@ public class VMServiceImpl extends VMService {
 		return new ResponseMessage();
 	}
 
+	@Override
+	public ResponseMessage allocateICVirtualMachine(TemplateModel templateModel) {
+
+		TemplateModelON templateModelON = (TemplateModelON) templateModel;
+
+		CloudLogger.getInstance().LogInfo(templateModelON.toString());
+
+		ImageServiceImpl imageService = new ImageServiceImpl();
+		TemplateServiceImpl templateService = new TemplateServiceImpl();
+
+		List<OneResponse> oneResponses = imageService
+				.allocateImages(templateModelON);
+
+		templateService.allocateTemplate(templateModelON, oneResponses);
+		
+		return new ResponseMessage();
+	}
+
 }
